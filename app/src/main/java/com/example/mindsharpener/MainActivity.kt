@@ -16,122 +16,94 @@ class MainActivity : AppCompatActivity() {
     private var point = 0
     private var randomFirstNumber = 0
     private var randomSecondNumber = 0
+    private var randomOperator = 0
+    private val random = Random.Default
+
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
-
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        point = 0
         // bind onclick listener to check button
-        binding.checkButton.setOnClickListener{checkAnswer()}
+        binding.checkButton.setOnClickListener { checkAnswer() }
 
         //bind listener to input field
-        binding.inputAnswer.setOnKeyListener{ view, keyCode, _ ->
-            handleKeyEvent(
-                view,
-                keyCode
-            )
+        binding.inputAnswer.setOnKeyListener { view, keyCode, _ ->
+            handleKeyEvent(view, keyCode)
         }
         generateQuestion()
-
-
     }
-    private fun displayFinalPoint(point: String) {
 
+    private fun displayFinalPoint(point: String) {
         binding.point.text = getString(R.string.point, point)
     }
 
     // generate random question based on user chosen level
-    private  fun generateQuestion(){
-
-        var levelChosen = when(binding.radioGroup.checkedRadioButtonId){
+    private fun generateQuestion() {
+        var levelChosen = when (binding.radioGroup.checkedRadioButtonId) {
             R.id.radio_easy -> 9
-            R.id.radio_medium ->99
-            R.id.radio_hard ->999
-            else ->9
+            R.id.radio_medium -> 99
+            R.id.radio_hard -> 999
+            else -> 9
         }
-        var randomOperator = Random.nextInt(0,3)
-        var operator = when(randomOperator){
-            0-> "+"
-            1-> "-"
-            2->"*"
-            3->"/"
-            else->"error"
+        randomOperator = random.nextInt(0, 4)
+        var operator = when (randomOperator) {
+            0 -> "+"
+            1 -> "-"
+            2 -> "*"
+            3 -> "/"
+            else -> "error"
         }
-         randomFirstNumber = Random.nextInt(0,levelChosen)
-         randomSecondNumber = Random.nextInt(0,levelChosen)
+        randomFirstNumber = random.nextInt(0, levelChosen)
+        randomSecondNumber = random.nextInt(0, levelChosen)
 
         binding.firstNumber.text = randomFirstNumber.toString()
         binding.secondNumber.text = randomSecondNumber.toString()
         binding.operator.text = operator
-
-
-
-
     }
 
     // check the user answer with the system answer
-    fun checkAnswer(){
-
+    fun checkAnswer() {
         //get user answer
         val userInputFieldString = binding.inputAnswer.text.toString()
         //convert user answer to double
         val userAnswerDouble = userInputFieldString.toDoubleOrNull()
-        print(userInputFieldString)
 
-        fun getSystemAnswer(){
-            print(randomFirstNumber.toString())
-            print(randomSecondNumber.toString())
-
-                if(binding.operator.toString() =="+")
-                    randomFirstNumber + randomSecondNumber
-                else if (binding.operator.toString() =="-")
-                    randomFirstNumber - randomSecondNumber
-                else if (binding.operator.toString() =="*")
-                    randomFirstNumber * randomSecondNumber
-                else if (binding.operator.toString() =="/")
-                    randomFirstNumber / randomSecondNumber
-                else 0
-        }
-        val systemAnswer = getSystemAnswer()
-
-        if (userAnswerDouble.toString() == systemAnswer.toString()){
-            point = point + 1
-            print(point)
+        val systemAnswer = when (randomOperator) {
+            0 -> randomFirstNumber + randomSecondNumber
+            1 -> randomFirstNumber - randomSecondNumber
+            2 -> randomFirstNumber * randomSecondNumber
+            3 -> randomFirstNumber / randomSecondNumber
+            else -> 0
         }
 
+        if (userAnswerDouble == systemAnswer.toDouble()) {
+            point += 1
+        } else {
+            point -= 1
+        }
         displayFinalPoint(point.toString())
-
+        generateQuestion()
     }
 
     fun onRadioButtonClicked(view: View) {
         if (view is RadioButton) {
             // Is the button now checked?
             val checked = view.isChecked
-
             // Check which radio button was clicked
-            when (view.getId()) {
-                R.id.radio_easy ->
-                    if (checked) {
-                        generateQuestion()
-                    }
-                R.id.radio_medium ->
-                    if (checked) {
-                        generateQuestion()
-                    }
-                R.id.radio_hard ->
-                    if (checked) {
-                        generateQuestion()
-                    }
+            when (view.id) {
+                R.id.radio_easy -> if (checked) {
+                    generateQuestion()
+                }
+                R.id.radio_medium -> if (checked) {
+                    generateQuestion()
+                }
+                R.id.radio_hard -> if (checked) {
+                    generateQuestion()
+                }
             }
         }
     }
-
-
-
-
-
 
     private fun handleKeyEvent(view: View, keyCode: Int): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -144,3 +116,4 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 }
+
